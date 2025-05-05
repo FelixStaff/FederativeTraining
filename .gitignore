@@ -1,0 +1,6 @@
+data/MNIST
+
+# Also ignore all the pycache files
+__pycache__
+# Ignore all the .pyc files
+*.pyc
