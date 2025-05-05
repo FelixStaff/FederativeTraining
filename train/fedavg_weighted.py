@@ -6,7 +6,8 @@ def average_models_weighted(models, weights):
     if not models or not weights or len(models) != len(weights):
         raise ValueError("Modelos y pesos deben tener el mismo tamaño.")
 
-    total_weight = sum(weights)
+    # Sum as the softmax of the weights to normalize them
+    total_weight = sum([torch.exp(torch.tensor(w)) for w in weights])
     if total_weight == 0:
         raise ValueError("La suma de los pesos no puede ser cero.")
     normalized = [w / total_weight for w in weights]
