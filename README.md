@@ -1,13 +1,6 @@
-# Federated Learning with MNIST
+# Federated MNIST Learning - ITESM Cloud Computing
 
-Este proyecto implementa un sistema de aprendizaje federado utilizando el dataset MNIST en PyTorch. Cada cliente entrena su modelo local de forma independiente, sin compartir datos, y los modelos se combinan usando promedio de pesos (FedAvg). Se incluye evaluación global con `classification_report` para una visión detallada del rendimiento por clase.
-
-## Características
-
-- Partición de datos estratificada (`StratifiedKFold`) para asegurar una distribución equilibrada de clases entre clientes.
-- Modelo MLP compacto con `LayerNorm`, `Dropout` y una capa oculta de 128 unidades.
-- Promediado de pesos (`FedAvg`) sin sesgos de casting o tipo de tensor.
-- Evaluación individual y global de accuracy, además de reporte detallado con `sklearn.metrics.classification_report`.
+Este repositorio contiene una implementación completa de aprendizaje federado sobre la base de datos MNIST, desarrollado para el curso de Cloud Computing (ITESM). El flujo fue construido en PyTorch, adaptando la arquitectura y las reglas del proyecto original de clase.
 
 ## Arquitectura del Modelo
 
@@ -31,40 +24,60 @@ class SimpleMLP(nn.Module):
 ## Estructura
 
 ```
-project/
-│
-├── models/
-│   └── mlp.py               # Define SimpleMLP
-│
-├── data/
-│   └── mnist.py             # Carga y partición estratificada del MNIST
-│
+.
+├── data/                        # Carga y partición de MNIST
+│   └── mnist.py
+├── models/                     # Modelos base
+│   └── mlp.py                  # Red neuronal simple (2 capas densas, sin convs)
 ├── train/
-│   ├── local.py             # Entrenamiento local de cada cliente
-│   ├── evaluate.py          # Evaluación del modelo en el test set
-│   └── fedavg.py            # Promedio de modelos
-│
-└── main.py                  # Entrenamiento federado y evaluación global
+│   ├── pipeline/               # Entrenador federado
+│   │   └── trainer.py
+│   ├── local.py                # Entrenamiento local
+│   ├── evaluate.py             # Evaluación por accuracy
+│   ├── fedavg.py               # Agregación clásica
+│   ├── fedavg_weighted.py      # FedAvg ponderado por accuracy
+│   ├── fedmedian.py            # Agregado por mediana
+│   └── multiplicative_ensemble.py  # Ensemble bayesiano multiplicativo (top-k)
+├── main.py                     # Pipeline principal
+├── requirements.txt
+└── README.md
 ```
 
-## Requisitos
+## Cómo correrlo
 
-- Python ≥ 3.8
-- PyTorch ≥ 1.12
-- scikit-learn
-- torchvision
+Primero instala las dependencias con:
 
-## Uso
-
+```bash
+pip install -r requirements.txt
 ```
+
+Luego ejecuta el pipeline principal:
+
+```bash
 python main.py
 ```
 
-Este ejecutará 3 épocas de entrenamiento local por cliente (por defecto 6 clientes), promediará los modelos y generará métricas globales. Al final se imprime el `classification_report`.
+Esto entrenará (o cargará desde disco) los modelos locales para 10 clientes, y luego construirá los modelos globales utilizando distintos métodos de agregación.
 
-## Futuras Extensiones
+Nota: la partición real de los datos debe hacerse fuera del repositorio para cumplir con los requisitos de confidencialidad. Esta implementación simula eso dividiendo los datos de forma estadísticamente equivalente internamente.
 
-- Añadir regularización basada en normas de los pesos.
-- Soporte para datos no-IID más extremos.
-- Implementación de más rondas federadas y agregación personalizada.
-- Guardado automático de resultados y modelos.
+## Métodos de agregación implementados
+
+- FedAvg: promedio clásico de parámetros.
+- FedAvg ponderado: cada cliente aporta proporcionalmente a su accuracy.
+- FedMedian: se toma la mediana por parámetro entre modelos.
+- Multiplicative Ensemble: se toman los top-k modelos por accuracy, se combinan sus salidas probabilísticas vía multiplicación y se normalizan, generando una decisión robusta.
+
+## Archivos clave
+
+- `main.py`: ejecuta el flujo completo de entrenamiento local, evaluación y agregación global.
+- `train/pipeline/trainer.py`: clase `FederatedTrainer` que gestiona la lógica federada.
+- `train/local.py`: función de entrenamiento individual.
+- `train/evaluate.py`: cálculo del accuracy global.
+- `models/mlp.py`: modelo utilizado.
+- `train/multiplicative_ensemble.py`: implementación del ensemble bayesiano multiplicativo.
+- `train/fedavg*.py`: métodos de agregación.
+
+## Confidencialidad
+
+La división de datos entre integrantes se hace fuera del repositorio, como lo exige el enunciado del proyecto. Esta versión es totalmente funcional pero simula localmente la división para que cada quien corra el codigo con 1 cliente y pase sus resultados al resto y se guarde dentro de los `models/weights/` para que cada quien pueda correr el código y obtener los resultados.

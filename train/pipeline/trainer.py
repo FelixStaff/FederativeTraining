@@ -7,6 +7,7 @@ from train.evaluate import evaluate
 from train.fedavg import average_models
 from train.fedavg_weighted import average_models_weighted
 from train.bayesian import build_multiplicative_ensemble
+from sklearn.metrics import classification_report
 
 class FederatedTrainer:
     def __init__(self, client_datasets, test_dataset, save_path='models/weights', device=None):
@@ -55,3 +56,15 @@ class FederatedTrainer:
         for i, acc in enumerate(self.accuracies):
             print(f"Cliente {i}: {acc:.4f}")
         print(f"Promedio individual: {sum(self.accuracies)/len(self.accuracies):.4f}")
+
+    def classification_report(self, model):
+        y_true = []
+        y_pred = []
+        for data, target in self.test_loader:
+            data, target = data.to(self.device), target.to(self.device)
+            output = model(data)
+            _, predicted = torch.max(output.data, 1)
+            y_true.extend(target.cpu().numpy())
+            y_pred.extend(predicted.cpu().numpy())
+        print(classification_report(y_true, y_pred, digits=4))
+        return classification_report(y_true, y_pred, digits=4)
