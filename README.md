@@ -1,4 +1,5 @@
-# Federated MNIST Learning - ITESM Cloud Computing
+# Federated MNIST Learning - ITESM Cloud Computing (Equipo AlephZero)
+
 
 Este repositorio contiene una implementación completa de aprendizaje federado sobre la base de datos MNIST, desarrollado para el curso de Cloud Computing (ITESM). El flujo fue construido en PyTorch, adaptando la arquitectura y las reglas del proyecto original de clase.
 
