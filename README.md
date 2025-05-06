@@ -95,3 +95,11 @@ El otro metodo y el RECOMENDABLE es que corra el archivo `main.ipynb` el cual ha
 ## Confidencialidad
 
 La división de datos entre integrantes se hace fuera del repositorio, como lo exige el enunciado del proyecto. Esta versión es totalmente funcional pero simula localmente la división para que cada quien corra el codigo con 1 cliente y pase sus resultados al resto y se guarde dentro de los `models/weights/` para que cada quien pueda correr el código y obtener los resultados.
+
+## Resultados resumidos
+
+| Método    | Precision | Recall  | F1 Score |
+|-----------|-----------|---------|----------|
+| Promedio  | 0.8653    | 0.8636  | 0.8493   |
+| Ponderado | 0.8678    | 0.8667  | 0.8626   |
+| Ensemble  | 0.9115    | 0.9106  | 0.9114   |
